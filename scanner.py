@@ -1,15 +1,11 @@
 import logging
+import argparse
 from pathlib import Path
-from datetime import datetime
 
 from watcher import ImageWatcher, watch_folder
 from detector import detect_document_corners, Point
 from warp import warp_document
 from saver import save_document
-
-
-INPUT_FOLDER = "./scans"
-OUTPUT_FOLDER = "./output"
 
 
 def _setup_logging():
@@ -45,7 +41,7 @@ def _check_upside_down(corners: list[Point], image_shape) -> bool:
     return avg_bottom < avg_top
 
 
-def process_image(image_path: str) -> str | None:
+def process_image(image_path: str, max_dimension: int, quality: int, output_folder: str) -> str | None:
     image = None
     warped = None
     try:
@@ -68,7 +64,7 @@ def process_image(image_path: str) -> str | None:
             _log_failure(image_path, "Perspective warp failed")
             return None
 
-        output_path = save_document(warped, OUTPUT_FOLDER)
+        output_path = save_document(warped, output_folder, max_dimension, quality)
         _log_success(image_path, output_path)
         return output_path
 
@@ -81,22 +77,30 @@ def process_image(image_path: str) -> str | None:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Document Scanner")
+    parser.add_argument("--input", "-i", default="./scans", help="Input folder (default: ./scans)")
+    parser.add_argument("--output", "-o", default="./output", help="Output folder (default: ./output)")
+    parser.add_argument("--max-size", "-m", type=int, default=2000, help="Max dimension in pixels (default: 2000)")
+    parser.add_argument("--quality", "-q", type=int, default=90, help="JPEG quality 1-100 (default: 90)")
+    args = parser.parse_args()
+
     _setup_logging()
     logging.info("Scanner started")
+    logging.info(f"Settings: input={args.input}, output={args.output}, max_size={args.max_size}, quality={args.quality}")
 
-    Path(OUTPUT_FOLDER).mkdir(parents=True, exist_ok=True)
+    Path(args.output).mkdir(parents=True, exist_ok=True)
 
     from queue import Queue
     image_queue: Queue = Queue()
 
-    observer = watch_folder(INPUT_FOLDER, image_queue)
-    logging.info(f"Watching folder: {INPUT_FOLDER}")
+    observer = watch_folder(args.input, image_queue)
+    logging.info(f"Watching folder: {args.input}")
 
     try:
         while True:
             try:
                 image_path = image_queue.get(timeout=1)
-                process_image(image_path)
+                process_image(image_path, args.max_size, args.quality, args.output)
             except __import__('queue').Empty:
                 continue
     except KeyboardInterrupt:

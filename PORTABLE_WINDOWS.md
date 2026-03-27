@@ -85,6 +85,45 @@ portable_scanner/
 3. Documents are cropped, perspective-corrected, and saved to `output/`
 4. Check `scanner.log` for processing status
 
+### Command-Line Options
+
+Customize the scanner with these options:
+
+```
+scanner.exe [OPTIONS]
+
+Options:
+  -i, --input FOLDER    Input folder (default: ./scans)
+  -o, --output FOLDER   Output folder (default: ./output)
+  -m, --max-size PIXELS Max dimension in pixels (default: 2000)
+  -q, --quality 1-100   JPEG quality (default: 90)
+```
+
+**Examples:**
+
+```batch
+:: Use custom folders
+scanner.exe -i D:\MyScans -o D:\Processed
+
+:: Higher resolution (3000px max)
+scanner.exe -m 3000
+
+:: Lower quality for smaller files (70)
+scanner.exe -q 70
+
+:: All options combined
+scanner.exe -i ./scans -o ./output -m 2500 -q 85
+```
+
+**Recommended Settings:**
+
+| Use Case | Max Size | Quality |
+|----------|----------|---------|
+| Projection/Display | 2000-3000 | 90 |
+| Archive/Backup | 4000+ | 95 |
+| Web/Sharing | 1500 | 80 |
+| Email | 1000 | 70 |
+
 ### Processing Log
 
 The `scanner.log` file shows:
