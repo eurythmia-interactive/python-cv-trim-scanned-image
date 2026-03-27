@@ -1,0 +1,18 @@
+[project]
+name = "python-cv-trim-scanned-image"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.3",
+    "opencv-python>=4.13.0.92",
+    "opencv-python-headless>=4.13.0.92",
+    "pydantic-settings>=2.13.1",
+    "watchdog>=6.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.19.0",
+]
